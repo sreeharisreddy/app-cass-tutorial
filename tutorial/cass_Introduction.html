@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+<b>Introduction</b>
+<p>
+<h5>Apache Casandra is</h5>
+ <pre>1. a open source </pre>
+ <pre>2.A No SQL database technology </pre>
+ <pre>3.Distributed technology (will run on multiple servers)</pre>
+ <pre>3.Big Data Technology which provides massive scalability</pre>
+ <pre>4.Commonly used to create a database that is spread across multiple nodes in more than one data center ,for high availability</pre>
+ <pre>5.Based on amazon dynamo and google Big Ta0ble (used for storing huge amount of data) </pre>
+ <pre>6.Check cassandra.apache.org</pre>
+ <pre>7.Cassandra is fault tollerant , performance will not be degraded if we added additional nodes, And no worry about if master node going down stooping the work.
+  Casssandra can run commodity hardware</pre>
+  <pre>8.Casandra will be good to suitable for No sql , real time applications. It is not like hadoop which works on batch</pre>
+ <pre>9.Also cassandra used in IOT and machine learning</pre>
+ <h5>Hardware Requirements</h5>
+ <pre>1.64 bit Operating system</pre>
+ <pre>8 GB or more ram</pre>
+ <pre>30 GB of (ore more) of free harddisk space</pre>
+ <pre>VM Ware player</pre>
+ <h5>Cassandra Database</h5>
+ <pre>A network group of nodes is called cluster.In a cluster there is no master or slave nodes.
+ Each node has same functionality as others which combines with replication which allows 
+ for distributed data and no single point of failure </pre>
+ <pre>In cassandra a cluster can easily be across  more than one data center</pre>
+ <pre>Datastax is orgnization which maintains casandra and also have enterprice version </pre>
+ <pre><b>Snitch </b> Is how the nodes in a cluster know about the topology of the cluster i.e which nodes in which data center,
+ and in data center which nodes in which rack.They find through the Snitch. </b></pre>
+ <pre><b>Ways to define Snitch</b></pre>
+ <pre>1.Dynamic Snitching</pre>
+ <pre>2.SimpleSnitch: will be used in if ther cluster is in Same data center</pre>
+ <pre>3.RackinferringSnitch</pre>
+ <pre>4.Property File Snitch : Used in the case of cluster is less size . Because in casandra cluster the config file
+  contains IP address of all the nodes in the cluster .</pre>
+ <pre>5.GossipingPropertyFileSnitch:if the cluster size more then we can use GassipSnitch.
+ <b>  Gassip</b> is how the nodes in a cluster communicate with each other.Every one second, each node communicates with up to three other nodes.
+ Exchanging information about itself and all the other nodes that it has information about . 
+ Gassip is the internal communication method for nodes in a cluster to talk to each other.
+ For external communication , such as from an application to a Cassandra database , CQL or Thrift are used.
+ </pre>
+  <pre>6.EC2Snitch</pre>
+ <pre>7.Ec2MultiRegionSnitch</pre>
+<h5>How data gets distributed</h5>
+ <pre><b>Data distribution</b> is done through consistent hashing , to strive for even distribution of data across the nodes in a cluster.</pre>
+ <pre>To distribute the rows across the nodes , a partitioner is used. The partitioner use an algorithm to determines which node a given row data will goto.</pre>
+ <pre>The default partioner in  cassandra is MURMUR3. It takes the first column in the row and to generate a unique number between -2 pow 63 to +2 pow 63 . 
+ It is also possible to use more than one column</pre>
+ <pre>Each node in a cluster is assigned one token range (or multiple ranges with virtual nodes) . 
+ We will specify the  range manually. To caliculate the range we can use MURMUR3 caliculator</pre>
+ <pre>http://murmur3.onthe.io/</pre>
+ <pre><b>A replication factor<b/> Must be specified whenever database is defined.It's good to specify 2 or 3</pre>
+ <pre><b>Virtual Nodes </b> are an alternative way to assign token ranges to nodes,and are now the default in cassandra.</pre>
+ <pre>With virtual nodes ,instead of a node being responsible for just one token range ,it is instead responsible for many small token ranges.
+ (by default 256 of them ,for power full computer it can be 512 and less power computer it can be 128)</pre>
+ </body>
+</html>
