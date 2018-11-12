@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+<pre><a href="https://docs.datastax.com/en/developer/java-driver-dse/1.7/manual/">Jdbc Manual</a></pre>
+<pre>In order to use the datastax java driver , the start_native_transport property needs to be set to true in the cassandra.yaml file
+start_native_transport : true
+this is enabled by default from cassandra 1.2.5 onwards
+     <dependency>
+  		<groupId>com.datastax.cassandra</groupId>
+  		<artifactId>cassandra-driver-core</artifactId>
+  		<version>2.0.2</version> //latest version 3.0.6 is availanle
+  	</dependency>
+  </pre>
+  <pre>The Cluster class allows a java application to communicate with Cassandra cluster
+       Cluster cluster = Cluster.builder().addContactPoints("127.0.0.1","127.0.0.1").build();
+       Listining more than one contact point is recomended ,so that if one contact pont is down ,another contact pont can be used.
+  </pre>
+</body>
+</html>

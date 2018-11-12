@@ -31,7 +31,7 @@
  <pre>In cassandra a cluster can easily be across  more than one data center</pre>
  <pre>Datastax is orgnization which maintains casandra and also have enterprice version </pre>
  <pre><b>Snitch </b> Is how the nodes in a cluster know about the topology of the cluster i.e which nodes in which data center,
- and in data center which nodes in which rack.They find through the Snitch. </b></pre>
+ and within data center which nodes in which rack.They find through the Snitch. </b></pre>
  <pre><b>Ways to define Snitch</b></pre>
  <pre>1.Dynamic Snitching</pre>
  <pre>2.SimpleSnitch: will be used in if ther cluster is in Same data center</pre>
@@ -54,9 +54,39 @@
  <pre>Each node in a cluster is assigned one token range (or multiple ranges with virtual nodes) . 
  We will specify the  range manually. To caliculate the range we can use MURMUR3 caliculator</pre>
  <pre>http://murmur3.onthe.io/</pre>
- <pre><b>A replication factor<b/> Must be specified whenever database is defined.It's good to specify 2 or 3</pre>
+ <pre><b>A replication factor</b> Must be specified whenever database is defined.It's good to specify 2 or 3</pre>
  <pre><b>Virtual Nodes </b> are an alternative way to assign token ranges to nodes,and are now the default in cassandra.</pre>
  <pre>With virtual nodes ,instead of a node being responsible for just one token range ,it is instead responsible for many small token ranges.
  (by default 256 of them ,for power full computer it can be 512 and less power computer it can be 128)</pre>
+ <pre><b>Installing cassandra</b><a href="http://archive.apache.org/dist/cassandra/2.0.7/"> down load from http://archive.apache.org/dist/cassandra/2.0.7/</a></pre>
+ <pre>create cassandra directory  in home folder</pre>
+ <pre>mkdir ~/cassandra
+ cd cassandra
+ mv ~/Downloads/apache-cassandra-2.0.7.zip .
+ tar -xvzf apache-cassandra-2.0.7.zip</pre>
+ <pre> Create a directory to write the data by cassandra sudo mkdir /var/lib/cassandra</pre>
+ <pre> Create a directory to write the data by cassandra sudo mkdir /var/log/log</pre>
+  <pre> sudo chown -R $USER:$GROUP /var/lib/cassandra/</pre>
+  <pre>  sudo chown -R $USER:$GROUP /var/log/cassandra/</pre>
+  <pre>to start in foregroud bin/cassandra -f</pre>
+  <pre> To check the status use  cd /cassandra/apache-cassandra-2.0.7/bin/nodetool which variaus commands ,the most common one is status</pre>
+  <pre>bin/nodetool status</pre>
+  <pre><code>Datacenter: datacenter1
+=======================
+Status=Up/Down
+|/ State=Normal/Leaving/Joining/Moving
+--  Address    Load       Owns (effective)  Host ID                               Token                                    Rack
+UN  127.0.0.1  41 KB      100.0%            9a985288-ac0a-4744-a860-95cbe3b92649  -9128124857442665030                     rack1
+</code></pre>
+<pre><b> nodetool other commands</b>
+ bin/nodetool info localhost</pre>
+ bin/nodetool ring    /output all the tokens of a node.
+ <pre>Cassandra config folder contains main config file cassandra.yaml file which contains below information </pre>
+ <pre>1.clustername: The name of the cluster should be same in all nodes </pre>
+ <pre>2.numtokens:256 This goes back to vertual nodes . It specify the the range it takes</pre>
+ <pre>Partioner by default murmur3</pre>
+ <pre>datafiledirectories: Path to store the data on disk</pre>
+ <pre>endpoint_snitch:simplesnitch</pre>
+ <pre><b>LogFiles</b>  cd /var/log/cassandra/system.log  if you change the path change log4j.properties line 35 </pre>
  </body>
 </html>

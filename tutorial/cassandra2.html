@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+<title>Insert title here</title>
+</head>
+<body>
+ <pre><b>CQL</b></pre>
+ <pre>>1.Cql is same like , it is same as case sensitive</pre>
+ <pre>2.Even though CQL is same like SQL , it's not have all options as sql ,due to the distributed nature of cassandra database.</pre>
+ <pre>Example we dont have joins</pre>
+ <pre>https://docs.huihoo.com/apache/cassandra/datastax/CQL-3.1-for-Cassandra-2.0-and-2.1.pdf</pre>
+ <pre>https://docs.datastax.com/en/dse/5.1/cql/cql/cql_reference/cql_commands/cqlCommandsTOC.html</pre>
+ <pre>we can also use cqlsh commands in cql
+ 
+ Example 1. 
+ 
+ cqlsh> describe cluster
+		    Cluster: Test Cluster
+			Partitioner: Murmur3Partitioner
+			Snitch: SimpleSnitch
+			 
+ cqlsh> HELP   /list all the availble commands
+ cqlsh>  HELP SELECT_TABLE /to see the individual command help
+ ; optional for cqlsh , but mandatory for cql
+ </pre>
+ <pre><b>Cassandra Database</b></pre>
+ <pre>In casandra a database is defined as keyspace . With in the keyspace the tables can be defined.</pre>
+<pre>After installing casssandra we will get some default key spaces system key spaces</pre>
+<pre>cqlsh> describe keyspaces
+            system  system_traces
+cqlsh> describe keyspace system  /list all the table create script and keyspace create script            
+cq
+
+NetworkTopologyStratogy : WHich used when the database is spread accross multiple datacenters.
+SimpleStrategy : One datacenter
+replicationfactor : Each datacenter how many replications of the rows of the keyspace have . So we should have atleast that many nodes in each data center.
+
+CREATE KEYSPACE  vehicle_tracker with REPLICATION = {'class' : 'NetworkTopologyStrategy','dc1' : 3, 'dc2' : 2};
+
+CREATE KEYSPACE  vehicle_tracker with REPLICATION = {'class' : 'refplication_factor' : 1};
+
+by default all the keyspace names become lowercase , if we need upper case specify the keyspace name in "" ex "Vehicle_tracker"
+
+cqlsh> create KEYSPACE vehicle_tracker WITH replication = {'class': 'SimpleStrategy','replication_factor':1};
+cqlsh> describe keyspaces;
+
+system  vehicle_tracker  system_traces
+
+cqlsh> describe keyspace vehicle_tracker 
+
+CREATE KEYSPACE vehicle_tracker WITH replication = {
+  'class': 'SimpleStrategy',
+  'replication_factor': '1'
+};
+
+drop keyspace keyspace_name;
+</pre>
+<pre><b>Create Table</b></pre>
+<pre>CAQL DATA TYPES
+Asci , bigint ,blob ,boolean ,counter,decimal ,double, float,inet,int,list,map,set,text,timestamp,uuid,timeuuid,varchar,varint
+we can define primay after the column name or at the end.
+Partitioner key is hashed by the partitioner which node of the cluster will store the partition
+Partioner key is the value in the primary key defenation ,if have compisiot key the first column is the partion key. partion or row key is the same.<pre></pre>
+A table can be defined to store its data in ascending or descending order default is ascending order .
+with clustering order by (column desc) . Specifying desc will take loger time to insert ,because cells should added ayt the start of the partion rather end.
+But it improves read performance when desc order is required. 
+Although adding a new columns is allowed , change the column name on cluster is not recomanded (because of the data needs to be writed again with the new order).
+
+cqlsh:home_security> create TABLE activity (home_id text,datetime timestamp,event text,code_used text, 
+ PRIMARY KEY (home_id, datetime))
+ WITH CLUSTERING ORDER BY (datetime DESC);
+ 
+ create table home(home_id text ,address text,alt_phone text ,city text,contact_name text,email text,guest_code text,main_code text,phone text ,phone_password text,state text,
+                 zip text,PRIMARY KEY (home_id));
+</pre>                 
+<pre> <b>Different ways  to insert the data </b>
+   1.INSERT into command 
+   2.COPY  command / to import csv and export to csv from casandra
+   3.sstableloader tool  /to load bulk data , streams sstable to the live cluster ,sstable is the format which cosandra to store on the disk.
+     to use sstableloade the data should be oin the sstable format.
+ <code>
+ cqlsh:home_security> insert into activity(home_id,datetime,code_used,event) VALUES ('H01474777','2014-05-21 07:32:16','5599','alaram set');
+ cqlsh:home_security> select * from activity;
+  home_id   | datetime                 | code_used | event
+-----------+--------------------------+-----------+------------
+ H01474777 | 2014-05-21 07:32:16-0700 |      5599 | alaram set
+ 
+ cqlsh:home_security> copy activity (home_id,datetime,event,code_used) from '/home/vm1/Desktop/Files/Chapter 7/events.csv' 
+                      WITH HEADER = true AND delimiter = '|';
+ 
+</code>     
+
+</pre>                 
+<pre>1. In CQL ,a row's primary key value is what makes it unique.
+2. Internally , a partition key value (in thrift ,referred to as a row key value)
+is what makes an internal storage row unique.
+</pre>
+<pre>To view  how the data is stored in Cassandra , cassandra-cli can be used.</pre>
+<pre>bin/cassandra-cli</pre>
+<code>
+[default@home_security] LIST activity;  / dispalyed as per the partition key
+Using default limit of 100
+Using default cell limit of 100
+-------------------
+RowKey: H01474777
+=> (name=2014-05-23 18\:28\:41-0700:, value=, timestamp=1541852650310000)
+=> (name=2014-05-23 18\:28\:41-0700:code_used, value=35353939, timestamp=1541852650310000)
+=> (name=2014-05-23 18\:28\:41-0700:event, value=616c61726d207475726e6564206f6666, timest
+</code>
+<h5>How data is stored on Disk</h5>
+<pre>Whenn data is written to a table in cassandra , it goes to both a commit log on disk
+(for playback in case of node failure) and to memory (called memcache) </pre>
+<pre>WRITE-------------------------->MEMCACHE
+                        |                |
+                        |                |(when the mem cache full)
+                     COMMITLOG         SSTABLE
+ Once the memcache is full , it is flushed to disk ,as an SSTable. Each table on each node there is a memcache. 
+ The SSTables for a table are stored on disk , in the location specified in the cassandra.yaml file .(By default ,in the /var/lib/cassandra/data directory.)
+ TO see the contents of an SSTable , sstable2json can be used.
+ bin/sstable2json /var/lib/cassandra/data/home_security/activity/home_security-activity-jb-1-Data.db
+ </pre>
+ <pre>When you see the files under /var/lib/cassandra/data/home_security  there would no files created , because the data is still in memcache.Normally it will flush after the memcache is full .
+ We can also do manually by applying the below command.
+ <strong>bin/nodetool flush home_security</strong>
+ <p>bin/sstable2json /var/lib/cassandra/data/home_security/activity/home_security-activity-jb-1-Data.db will display the data in which is stored in jsonformat</p> 
+  </pre>
+<h5>Data Modeling in Cassnadra</h5>
+<pre>1.When data modeling in cassandra , it is important to understand the implications of working with a distributed database versus a relation one.
+2.The fact that <b>Joins do not exist</b> in Cassandra is perhaps the most significant data modeling difference between a distributed database versus a relational database.
+Because in the distributed database data will be spread accross the nodes and it is difficult to join the different tables .
+3.As a result , data modeling in a Cassandra database needs to be done in a way so that all the data for a query is available in one table.
+ That means query results can be handled by single table , so it is required what are the queries need then define the table.So that query can be answered by single table.
+</pre>
+<pre>As Casandra is distributed database with the data organized by partition key , WHERE clause queries generally need to include a partition key.
+      select * from activity where home_id='H0147477';
+      but the below query does not work
+      cqlsh:home_security> select * from activity where code_used='5599';
+        Bad Request: No indexed columns present in by-columns clause with Equal operator
+</pre>
+<pre><b>Indexes</b>
+  BY creating an index for columns beyond the partition and clustering columns , values in these other columns can be referenced in WHERE clauses.
+  We call these as secondary indexes.
+  For each index , Cassandra creates a hidden table on each node in the cluster.
+  It is important to know that , contrary to indexes in relational databases , creating secondary indexes does not increase the speed of queries in Cassandra.
+  Secondary indexes simply make it so that where clauses that reference values in column beyond the primary and clustering columns can run.
+  For increasing the speed of the query , instead of defining a secondary index , you could create a table specifically for the query.
+    create table homes_by_state (state text,zip text,home_iid text,address text,primary key (state,zip,home_id)). The drawback with this approach we have to insert and modify the data .
+</pre>
+<pre>
+cqlsh:home_security> create index code_used_index on activity (code_used);
+cqlsh:home_security> select * from activity where code_used='5599';
+
+ home_id   | datetime                 | code_used | event
+-----------+--------------------------+-----------+------------------
+ H01474777 | 2014-05-23 18:28:41-0700 |      5599 | alarm turned off
+ H01474777 | 2014-05-23 07:44:23-0700 |      5599 |        alarm set
+
+</pre>
+<pre><b>composite partition key</b>
+  A composite partition key is where a partition key is made up of more that on column.
+  Composite primary key is a good use case for time series data. 
+  create table location(vehicle_id text,date text,time timestamp,latitude double,longitude double, PRIMARY KEY((vehicle_id,date),time)) WITH CLUSTERING ORDER BY (time DESC);
+  copy location (vehicle_id,date,time,latitude,longitude) from '/home/vm1/Desktop/Files/Chapter 8/coordinates.csv' with HEADER=true and delimiter= '|';
+</pre>
+<pre> bin/cassandra-cli
+use vehicle_tracker
+ list location
+Using default limit of 100
+Using default cell limit of 100
+-------------------
+RowKey: ME100AAS:2014-05-19
+ => (name=2014-05-19 08\:50\:00-0700:, value=, timestamp=1541915499646000)
+=> (name=2014-05-19 08\:50\:00-0700:latitude, value=40465fecb31c219f, timestamp=1541915499646000)
+
+ /If you see Rowkey it contains both vehicle id and date as partition key.
+</pre>
+ </body>
+</html>
